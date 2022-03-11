@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import { db } from './firebase.js';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 function App() {
   const [newUser, setNewUser] = useState("");
@@ -21,10 +21,16 @@ function App() {
     )
   }
 
+  const updateUser = async (id, name) => {
+    const userDoc = doc(db, "users", id);
+    const newFields = { uname: name };
+    await updateDoc(userDoc, newFields);
+  };
+
   useEffect(() => {
     const getUsers = async() => {
       const data = await getDocs(usersRef);
-      setUsers(data.docs.map((doc) => ({...doc.data(), username: doc.username})))
+      setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})))
     };
 
     getUsers();
@@ -51,6 +57,18 @@ function App() {
             { " " }
             <h1>Username: {user.uname}</h1>
             <h1>User type: {user.userType}</h1>
+            <h1>User id: {user.id}</h1>
+            <input
+              placeholder="Enter new username"
+              onChange={(event) => {
+                setNewUser(event.target.value);
+              }}
+            />
+            <button
+              onClick={() => {
+                updateUser(user.id, newUser)
+              }}
+            >Change Name</button>
           </div> 
         )
       })}
