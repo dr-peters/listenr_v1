@@ -1,27 +1,50 @@
-import { FirebaseError } from 'firebase/app';
+// VERY IMPORTANT!!!
+// MUST USE HOTSPOT WHEN CONNECTING TO DATABASE ON CAMPUS, OR PAGE WILL NOT RENDER WITH DATA FROM FIRESTORE
+
 import { useState, useEffect } from 'react';
 import './App.css';
 import { db } from './firebase.js';
-import { collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 
 function App() {
+  const [newUser, setNewUser] = useState("");
+  const [newType, setNewType] = useState("");
   const [users, setUsers] = useState([]);
-
   const usersRef = collection(db, "users")
+
+  const createUser = async () => {
+    await addDoc(usersRef, 
+      {
+        uname: newUser,
+        userType: newType
+      }
+    )
+  }
+
   useEffect(() => {
-
     const getUsers = async() => {
-      const data = await getDocs(usersRef)
+      const data = await getDocs(usersRef);
       setUsers(data.docs.map((doc) => ({...doc.data(), username: doc.username})))
-    }
+    };
 
-    getUsers()
+    getUsers();
   }, [])
 
   return (
     <div className="App">
-      <input />
-      <button>Create User</button>
+      <input
+        placeholder="username"
+        onChange={(event) => {
+          setNewUser(event.target.value);
+        }}
+      />
+      <input
+        placeholder="user type"
+        onChange={(event) => {
+          setNewType(event.target.value);
+        }}
+      />
+      <button onClick={createUser}>Create User</button>
       {users.map((user) => {
         return (
           <div>
