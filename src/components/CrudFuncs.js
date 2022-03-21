@@ -49,7 +49,7 @@ function CrudFuncs() {
       <button onClick={createUser}>Create User</button>
       {users.map((user) => {
         return (
-          <div>
+          <div key={user.id}>
             { " " }
             <h1>Username: {user.uname}</h1>
             <h1>User type: {user.userType}</h1>

@@ -1,28 +1,23 @@
-import { useState } from "react";
-import {
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signOut
-} from "firebase/auth";
-import {setDoc, doc} from "firebase/firestore";
+import React, { useState } from 'react';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
 
-
-
-function LoginFuncs() {
+export default function Login() {
 
     const [registerEmail, setRegisterEmail] = useState("");
     const [registerPass, setRegisterPass] = useState("");
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPass, setLoginPass] = useState("");
-    const [authUser, setAuthUser] = useState({});
+    const [user, setUser] = useState({})
 
-
-    // Updates the current user that is signed in
+    // Updates the current user that is signed in (using auth)
     onAuthStateChanged(auth, (currentUser) => {
-        setAuthUser(currentUser);
+        setUser(currentUser);
     });
+
+    // Creates a new user account using auth, then takes the auth UID and creates a document inside the users collection. The new document id is the same as
+      // the auth UID. This document stores all the necessary fields for each user.
 
     const register = async () => {
         try {
@@ -57,7 +52,7 @@ function LoginFuncs() {
                     }
                 }
             });
-
+            
         } catch (error) {
             console.log(error.message);
         }
@@ -119,11 +114,9 @@ function LoginFuncs() {
             <button onClick={login}>Login</button>
         </div>
 
-        <h4>User Logged In: {authUser?.uid}</h4>
+        <h4>User Logged In: {user?.email}</h4>
 
         <button onClick={logout}>Sign Out</button>
     </div>
     );
 }
-
-export default LoginFuncs
