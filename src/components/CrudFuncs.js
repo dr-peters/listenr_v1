@@ -30,10 +30,11 @@ function CrudFuncs() {
     };
 
     getUsers();
+
   }, [])
 
   return (
-    <div className="App">
+    <div className="CrudFuncs">
       <input
         placeholder="username"
         onChange={(event) => {

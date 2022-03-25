@@ -6,6 +6,7 @@ export default function Navbar() {
     <div className="NavBar">
       <nav>
         <Link to="/home">Go Home</Link>
+        <Link to="/">Login Page</Link>
       </nav>
     </div>
   )

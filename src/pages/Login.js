@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
+import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
-
+export default function Login({ user, setUser }) {
+    let navigate = useNavigate();
     const [registerEmail, setRegisterEmail] = useState("");
     const [registerPass, setRegisterPass] = useState("");
+    const [registerName, setRegisterName] = useState("");
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPass, setLoginPass] = useState("");
-    const [user, setUser] = useState({})
 
-    // Updates the current user that is signed in (using auth)
-    onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser);
-    });
 
-    // Creates a new user account using auth, then takes the auth UID and creates a document inside the users collection. The new document id is the same as
-      // the auth UID. This document stores all the necessary fields for each user.
 
+
+    /************** CREATE ACCOUNT W/ EMAIL & PASSWORD SECTION **************/
+    // Creates a new user account using auth, then takes the auth UID and creates a document inside the users collection. The new document ID is the same as
+      // the auth UID. This document stores all the necessary fields for each user. Stores the UID in local storage to keep track of which user is signed in.
     const register = async () => {
         try {
             const newUser = await createUserWithEmailAndPassword(
@@ -26,24 +25,19 @@ export default function Login() {
                 registerEmail,
                 registerPass
             );
-            console.log(newUser.user.uid);
 
             await setDoc(doc(db, "users", newUser.user.uid), {
                 adPerms: false,
                 bio: "",
                 currently: "",
                 picURL: "",
-                username: "",
-                userType: "",
+                username: registerName,
+                userType: "localUser",
                 friendCode: "",
-                favorites: {
-                    favSongs: [],
-                    favArtists: [],
-                    favGenres: []
-                },
-                friendsList: [
-
-                ],
+                favSongs: [],
+                favArtists: [],
+                favGenres: [],
+                friendsList: [],
                 songRecs: {
                     rec1: {
                         friend: "",
@@ -52,13 +46,22 @@ export default function Login() {
                     }
                 }
             });
-            
+
+            localStorage.setItem("currUser", newUser.user.uid)
+            navigate("/home");
+        
         } catch (error) {
             console.log(error.message);
         }
         
+        
     }
 
+
+
+
+    /************** LOGIN SECTION **************/
+    // Similar to register function in that it takes the current Auth UID and assigns it to local storage to keep track of which user is logged in currently.
     const login = async () => {
         try {
             const user = await signInWithEmailAndPassword(
@@ -66,14 +69,24 @@ export default function Login() {
                 loginEmail,
                 loginPass
             );
-            console.log(user.user.uid);
+
+            localStorage.setItem("currUser", user.user.uid)
+            navigate("/home");
+            
         } catch (error) {
             console.log(error.message);
         }
     }
 
+
+
+
+    /************** LOGOUT SECTION **************/
+    // Simple logout function that clears the local storage and updates the auth variable.
     const logout = async () => {
+        console.log("Signing out");
         await signOut(auth);
+        localStorage.clear();
     }
 
     return(
@@ -90,6 +103,12 @@ export default function Login() {
                 placeholder="Password..."
                 onChange={(event) => {
                     setRegisterPass(event.target.value);
+                }}
+            />
+            <input
+                placeholder="Username..."
+                onChange={(event) => {
+                    setRegisterName(event.target.value);
                 }}
             />
 
@@ -115,7 +134,7 @@ export default function Login() {
         </div>
 
         <h4>User Logged In: {user?.email}</h4>
-
+        <h4>Profile UID is: {user?.uid}</h4>
         <button onClick={logout}>Sign Out</button>
     </div>
     );
