@@ -32,20 +32,15 @@ export default function Login({ user, setUser }) {
                 currently: "",
                 picURL: "",
                 username: registerName,
-                userType: "localUser",
-                friendCode: "",
-                favSongs: [],
-                favArtists: [],
-                favGenres: [],
-                friendsList: [],
-                songRecs: {
-                    rec1: {
-                        friend: "",
-                        song: "",
-                        artist: ""
-                    }
-                }
+                userType: "localUser"
             });
+
+            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "artists"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "genres"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "songs"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+
+            await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "requests"), {});
+            await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "friends"), {});
 
             localStorage.setItem("currUser", newUser.user.uid)
             navigate("/home");
