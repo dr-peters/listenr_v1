@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { db } from "../firebase.js"
-import { collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, deleteField, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 
 export default function Friends() {
     const usersRef = collection(db, "users")
-    const friendsListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "friends");
-    const requestListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "requests");
+    const currFriendListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "friends");
+    const currRecListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "recRequests");
+    const currSentListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "sentRequests");
+
     const [users, setUsers] = useState([]);
     const [friends, setFriends] = useState({});
-    const [requests, setRequests] = useState({});
+    const [recRequests, setRecRequests] = useState({});
+    const [sentRequests, setSentRequests] = useState({});
     const [desiredFriend, setDesiredFriend] = useState("");
+    const [refresh, setRefresh] = useState("");
+
+
+
+
 
     const findFriend = async (friendUsername) => {
         let alreadyAdded = false;
@@ -20,8 +28,8 @@ export default function Friends() {
                 alreadyAdded = true;
             }
         })
-        Object.entries(requests).map((request) => {
-            if(request[0] === friendUsername) {
+        Object.entries(sentRequests).map((request) => {
+            if(request[1] === friendUsername) {
                 alreadySent = true;
             }
         })
@@ -30,51 +38,120 @@ export default function Friends() {
             users.map(async(user) => {
                 if(user.username === friendUsername) {
                     const senderRef = doc(db, "users", localStorage.getItem("currUser"));
-                    const receiverRef = doc(db, "users", user.id, "friendsList", "requests");
-                    const senderUsername = senderRef.username;
+                    const senderData = await getDoc(senderRef);
+                    const senderUsername = senderData.data().username;
+                    const receiverReqRef = doc(db, "users", user.id, "friendsList", "recRequests");
 
-                    var key = senderRef.username;
-                    var newSentRequest = {};
-                    newSentRequest[key] = "sent";
-                    
-                    const newReceivedRequest = {[senderUsername] : localStorage.getItem("currUser")}
+                    const newSentRequest = {[user.id] : user.username};
+                    const newReceivedRequest = {[localStorage.getItem("currUser")] : senderUsername}
 
-                    await updateDoc(requestListRef, newSentRequest);
-                    await updateDoc(receiverRef, newReceivedRequest);
-                    console.log("The person DOES exist");
-                }
-                else {
-                    console.log("The person doesn't exist.");
+                    await updateDoc(currSentListRef, newSentRequest); // Person 1 (sender)
+                    await updateDoc(receiverReqRef, newReceivedRequest); // Person 2 (receiver)
+                    setRefresh(friendUsername);
                 }
             });
         }
     }
 
+
+
+
+
+    const addFriend = async(requestedID, requestedName) => {
+        await updateDoc(currFriendListRef, {
+            [requestedID] : requestedName
+        })
+
+        const currRef = doc(db, "users", localStorage.getItem("currUser"));
+        const currData = await getDoc(currRef);
+        const currUsername = currData.data().username;
+        const otherFriendListRef = doc(db, "users", requestedID, "friendsList", "friends");
+        await updateDoc(otherFriendListRef, {
+            [localStorage.getItem("currUser")] : currUsername
+        })
+
+        ignore(requestedID)
+    }
+
+
+
+
+
+
+    const removeFriend = async(removeID) => {
+        await updateDoc(currFriendListRef, {
+            [removeID] : deleteField()
+        })
+
+        const removeUserRef = doc(db, "users", removeID, "friendsList", "friends");
+        await updateDoc(removeUserRef, {
+            [localStorage.getItem("currUser")] : deleteField()
+        })
+        setRefresh("deleted" + removeID)
+    }
+
+
+
+
+
+    const ignore = async(requestedID) => {
+        console.log("Triggering ignore function with id: " + requestedID)
+        await updateDoc(currRecListRef, {
+            [requestedID] : deleteField()
+        })
+
+        const ignoredUserRef = doc(db, "users", requestedID, "friendsList", "sentRequests");
+        await updateDoc(ignoredUserRef, {
+            [localStorage.getItem("currUser")] : deleteField()
+        })
+        setRefresh(requestedID)
+    }
+
+
+
+
+
     useEffect(() => {
+        console.log("Calling useEffect")
         const getFriends = async() => {
-            const data = await getDoc(friendsListRef);
-            setFriends(data.data())
+            const data = await getDoc(currFriendListRef);
+            setFriends(data.data());
         };
-        const getRequests = async() => {
-            const data = await getDoc(requestListRef);
-            setRequests(data.data())
+        const getRecRequests = async() => {
+            const data = await getDoc(currRecListRef);
+            setRecRequests(data.data());
         };
+        const getSentRequests = async() => {
+            const data = await getDoc(currSentListRef);
+            setSentRequests(data.data());
+        }
         const getUsers = async() => {
             const data = await getDocs(usersRef);
-            setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})))
+            setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
         };
 
         getFriends();
-        getRequests();
+        getRecRequests();
+        getSentRequests();
         getUsers();
-    }, []);
+    }, [refresh]);
 
+
+
+
+    
     return (
         <div className='friendsList'>
             <h4>Friends</h4>
             {Object.entries(friends).map((friend) => {
                 return (
-                    <p key={friend[0]}>{friend[1]}</p>
+                    <div key={friend[1]}>
+                        <p>{friend[1]}</p>
+                        <button onClick={() => {
+                            removeFriend(friend[0])
+                        }}>Remove</button>
+                    </div>
+                    
                 )
             })}
             <input
@@ -88,6 +165,23 @@ export default function Friends() {
                     findFriend(desiredFriend)
                 }}
             >Send Friend Request</button>
+
+            <h4>Friend Requests</h4>
+            {Object.entries(recRequests).map((request) => {
+                return (
+                    <div key={request[0]}>
+                        <p>{request[1]}</p>
+                        <button onClick={() => {
+                            addFriend(request[0], request[1])
+                        }}>Accept</button>
+                        <button onClick={() => {
+                            ignore(request[0])
+                        }}>Ignore</button>
+                    </div>
+                    
+
+                )
+            })}
         </div>
     )
 }

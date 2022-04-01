@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
 
-export default function Login({ user, setUser }) {
+export default function Login({ user }) {
     let navigate = useNavigate();
     const [registerEmail, setRegisterEmail] = useState("");
     const [registerPass, setRegisterPass] = useState("");
     const [registerName, setRegisterName] = useState("");
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPass, setLoginPass] = useState("");
+    const [token, setToken] = useState("");
+
+    const CLIENT_ID = "242ab02bf8e24cf18347d1f9c94a0b0d";
+    const REDIRECT_URI = "http://localhost:3000"
+    const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize"
+    const RESPONSE_TYPE = "token"
 
 
 
@@ -39,9 +45,10 @@ export default function Login({ user, setUser }) {
             await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "genres"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
             await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "songs"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
 
-            await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "requests"), {});
             await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "friends"), {});
-
+            await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "recRequests"), {});
+            await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "sentRequests"), {});
+            
             localStorage.setItem("currUser", newUser.user.uid)
             navigate("/home");
         
@@ -83,6 +90,43 @@ export default function Login({ user, setUser }) {
         await signOut(auth);
         localStorage.clear();
     }
+
+    const registerSpotify = async() => {
+        window.location = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`
+        console.log("calling spotify");
+        
+    }
+
+    useEffect(() => {
+        const hash = window.location.hash
+        let token = window.localStorage.getItem("token")
+
+        if (!token && hash) {
+            token = hash.substring(1).split("&").find(elem => elem.startsWith("access_token")).split("=")[1]
+
+            window.location.hash = ""
+            window.localStorage.setItem("token", token)
+        }
+
+        setToken(token)
+
+        const createSpotifyUser = async() => {
+            const spotifyUserRef = doc(db, "users", token);
+            const spotifySnapshot = await getDoc(spotifyUserRef);
+            if(!spotifySnapshot.exists()) {
+                await setDoc(doc(db, "users", token), {
+                    adPerms: false,
+                    bio: "",
+                    currently: "",
+                    picURL: "",
+                    username: "spotifyUsername",
+                    userType: "apiUser"
+                });
+            }
+        }
+
+        createSpotifyUser();
+    }, [])
 
     return(
     <div className="login">
@@ -126,6 +170,12 @@ export default function Login({ user, setUser }) {
             />
 
             <button onClick={login}>Login</button>
+        </div>
+
+        <div>
+            <button onClick={() => {
+                registerSpotify()
+            }}>Login With Spotify</button>
         </div>
 
         <h4>User Logged In: {user?.email}</h4>
