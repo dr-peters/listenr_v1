@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } f
 import { setDoc, doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Login({ user }) {
     let navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function Login({ user }) {
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPass, setLoginPass] = useState("");
     const [token, setToken] = useState("");
+    const [spotifyUser, setSpotifyUser] = useState("");
 
     const CLIENT_ID = "242ab02bf8e24cf18347d1f9c94a0b0d";
     const REDIRECT_URI = "http://localhost:3000"
@@ -95,6 +97,13 @@ export default function Login({ user }) {
         window.location = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`
         console.log("calling spotify");
         
+        const {data} = await axios.get("https://api.spotify.com/v1/me", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        setSpotifyUser(data.display_name);
     }
 
     useEffect(() => {
@@ -103,9 +112,10 @@ export default function Login({ user }) {
 
         if (!token && hash) {
             token = hash.substring(1).split("&").find(elem => elem.startsWith("access_token")).split("=")[1]
-
             window.location.hash = ""
             window.localStorage.setItem("token", token)
+
+
         }
 
         setToken(token)
@@ -124,8 +134,8 @@ export default function Login({ user }) {
                 });
             }
         }
-
         createSpotifyUser();
+        console.log(spotifyUser);
     }, [])
 
     return(
