@@ -83,6 +83,7 @@ export default function Home({ user }) {
     <div className="HomePage">
       <h1>HOMEPAGE</h1>
       <h4>User ID: <i>{user.uid}</i></h4>
+      <h4>Spotify Token: <i>{localStorage.getItem("token")}</i></h4>
       <h4>Bio: <i>{profile?.bio}</i></h4>
       <input
         placeholder="Enter new bio"

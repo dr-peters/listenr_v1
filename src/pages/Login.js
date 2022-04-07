@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { setDoc, doc, getDoc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import SpotifyLogin from '../components/SpotifyLogin.js';
 
 export default function Login({ user }) {
     let navigate = useNavigate();
@@ -12,13 +12,7 @@ export default function Login({ user }) {
     const [registerName, setRegisterName] = useState("");
     const [loginEmail, setLoginEmail] = useState("");
     const [loginPass, setLoginPass] = useState("");
-    const [token, setToken] = useState("");
-    const [spotifyUser, setSpotifyUser] = useState("");
 
-    const CLIENT_ID = "242ab02bf8e24cf18347d1f9c94a0b0d";
-    const REDIRECT_URI = "http://localhost:3000"
-    const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize"
-    const RESPONSE_TYPE = "token"
 
 
 
@@ -64,6 +58,7 @@ export default function Login({ user }) {
 
 
 
+
     /************** LOGIN SECTION **************/
     // Similar to register function in that it takes the current Auth UID and assigns it to local storage to keep track of which user is logged in currently.
     const login = async () => {
@@ -85,58 +80,22 @@ export default function Login({ user }) {
 
 
 
+
     /************** LOGOUT SECTION **************/
     // Simple logout function that clears the local storage and updates the auth variable.
     const logout = async () => {
         console.log("Signing out");
         await signOut(auth);
-        localStorage.clear();
-    }
-
-    const registerSpotify = async() => {
-        window.location = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`
-        console.log("calling spotify");
+        if(localStorage.getItem("access_token")) {
+            localStorage.clear();
+            window.location = `https://accounts.spotify.com/logout`
+        }
         
-        const {data} = await axios.get("https://api.spotify.com/v1/me", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-
-        setSpotifyUser(data.display_name);
     }
 
-    useEffect(() => {
-        const hash = window.location.hash
-        let token = window.localStorage.getItem("token")
-
-        if (!token && hash) {
-            token = hash.substring(1).split("&").find(elem => elem.startsWith("access_token")).split("=")[1]
-            window.location.hash = ""
-            window.localStorage.setItem("token", token)
 
 
-        }
 
-        setToken(token)
-
-        const createSpotifyUser = async() => {
-            const spotifyUserRef = doc(db, "users", token);
-            const spotifySnapshot = await getDoc(spotifyUserRef);
-            if(!spotifySnapshot.exists()) {
-                await setDoc(doc(db, "users", token), {
-                    adPerms: false,
-                    bio: "",
-                    currently: "",
-                    picURL: "",
-                    username: "spotifyUsername",
-                    userType: "apiUser"
-                });
-            }
-        }
-        createSpotifyUser();
-        console.log(spotifyUser);
-    }, [])
 
     return(
     <div className="login">
@@ -182,15 +141,11 @@ export default function Login({ user }) {
             <button onClick={login}>Login</button>
         </div>
 
-        <div>
-            <button onClick={() => {
-                registerSpotify()
-            }}>Login With Spotify</button>
-        </div>
-
         <h4>User Logged In: {user?.email}</h4>
         <h4>Profile UID is: {user?.uid}</h4>
+        <h4>spotify token: </h4>
         <button onClick={logout}>Sign Out</button>
+        <SpotifyLogin />
     </div>
     );
 }
