@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { db } from "../firebase.js"
 import { collection, deleteField, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import SendSongRec from '../components/SendSongRec.js';
 
 export default function Friends() {
     const usersRef = collection(db, "users")
@@ -41,8 +42,9 @@ export default function Friends() {
                     const senderData = await getDoc(senderRef);
                     const senderUsername = senderData.data().username;
                     const receiverReqRef = doc(db, "users", user.id, "friendsList", "recRequests");
-
-                    const newSentRequest = {[user.id] : user.username};
+                    console.log(user.id + " & " + typeof user.id)
+                    const userKey = user.id;
+                    const newSentRequest = {[userKey] : user.username};
                     const newReceivedRequest = {[localStorage.getItem("currUser")] : senderUsername}
 
                     await updateDoc(currSentListRef, newSentRequest); // Person 1 (sender)
@@ -150,6 +152,8 @@ export default function Friends() {
                         <button onClick={() => {
                             removeFriend(friend[0])
                         }}>Remove</button>
+                        <SendSongRec thisFriend={friend[0]} />
+                        
                     </div>
                     
                 )

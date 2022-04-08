@@ -1,8 +1,9 @@
 import React from 'react'
 import { useEffect, useState } from 'react';
 import { setDoc, doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../firebase.js";
+import { db } from "../firebase.js";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function SpotifyLogin() {
     const CLIENT_ID = "242ab02bf8e24cf18347d1f9c94a0b0d";
@@ -11,6 +12,7 @@ export default function SpotifyLogin() {
     const RESPONSE_TYPE = "token"
     const SCOPES = ["user-read-private", "user-read-email", "user-read-currently-playing"].join("%20")
     const [spotifyData, setSpotifyData] = useState({});
+    const navigate = useNavigate();
 
     /************** SPOTIFY LOGIN SECTION **************/
     const handleSpotifyLogin = async() => {
@@ -29,6 +31,41 @@ export default function SpotifyLogin() {
         return paramsSplitUp;
     }
 
+    const addSpotifyUser = async() => {
+        const axiosInfo = await axios.get("https://api.spotify.com/v1/me", {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("access_token"),
+            }
+        })
+
+        setSpotifyData(axiosInfo.data)
+
+        const docRef = doc(db, "users", axiosInfo.data.id)
+        const docSnap = await getDoc(docRef)
+        const spotifyID = axiosInfo.data.id.replace('.', '%_%')
+        if(!docSnap.exists()) {
+            await setDoc(doc(db, "users", spotifyID), {
+                adPerms: false,
+                bio: "",
+                currently: "",
+                picURL: "",
+                username: axiosInfo.data.display_name,
+                userType: "spotifyUser"
+            });
+
+            await setDoc(doc(db, `users/${spotifyID}/favorites`, "artists"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+            await setDoc(doc(db, `users/${spotifyID}/favorites`, "genres"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+            await setDoc(doc(db, `users/${spotifyID}/favorites`, "songs"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+
+            await setDoc(doc(db, `users/${spotifyID}/friendsList`, "friends"), {});
+            await setDoc(doc(db, `users/${spotifyID}/friendsList`, "recRequests"), {});
+            await setDoc(doc(db, `users/${spotifyID}/friendsList`, "sentRequests"), {});
+        }
+        
+        localStorage.setItem("currUser", spotifyID)
+        navigate("/home");
+    }
+
 
 
 
@@ -41,16 +78,8 @@ export default function SpotifyLogin() {
 
         if(localStorage.getItem("access_token")) {
             console.log(localStorage.getItem("access_token"))
-            axios.get("https://api.spotify.com/v1/me", {
-                headers: {
-                    Authorization: "Bearer " + localStorage.getItem("access_token"),
-                }
-            }).then((response) => {
-                setSpotifyData(response.data)
-                
-            }).catch((error) => {
-                console.log(error)
-            });
+
+            addSpotifyUser()
         }
 
         

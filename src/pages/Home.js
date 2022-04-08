@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { db } from "../firebase.js"
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import Friends from './Friends.js';
+import Logout from '../components/Logout.js';
 
 export default function Home({ user }) {
   const [profile, setProfile] = useState({});
@@ -82,7 +83,8 @@ export default function Home({ user }) {
   return (
     <div className="HomePage">
       <h1>HOMEPAGE</h1>
-      <h4>User ID: <i>{user.uid}</i></h4>
+      <Logout />
+      <h4>User ID: <i>{localStorage.getItem("currUser")}</i></h4>
       <h4>Spotify Token: <i>{localStorage.getItem("token")}</i></h4>
       <h4>Bio: <i>{profile?.bio}</i></h4>
       <input

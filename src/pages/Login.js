@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
 import { useNavigate } from 'react-router-dom';
@@ -81,17 +81,7 @@ export default function Login({ user }) {
 
 
 
-    /************** LOGOUT SECTION **************/
-    // Simple logout function that clears the local storage and updates the auth variable.
-    const logout = async () => {
-        console.log("Signing out");
-        await signOut(auth);
-        if(localStorage.getItem("access_token")) {
-            localStorage.clear();
-            window.location = `https://accounts.spotify.com/logout`
-        }
-        
-    }
+    
 
 
 
@@ -144,7 +134,7 @@ export default function Login({ user }) {
         <h4>User Logged In: {user?.email}</h4>
         <h4>Profile UID is: {user?.uid}</h4>
         <h4>spotify token: </h4>
-        <button onClick={logout}>Sign Out</button>
+        
         <SpotifyLogin />
     </div>
     );
