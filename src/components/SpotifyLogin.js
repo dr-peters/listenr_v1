@@ -60,6 +60,7 @@ export default function SpotifyLogin() {
             await setDoc(doc(db, `users/${spotifyID}/friendsList`, "friends"), {});
             await setDoc(doc(db, `users/${spotifyID}/friendsList`, "recRequests"), {});
             await setDoc(doc(db, `users/${spotifyID}/friendsList`, "sentRequests"), {});
+            await setDoc(doc(db, `users/${spotifyID}/friendsList`, "songRecs"), {});
         }
         
         localStorage.setItem("currUser", spotifyID)

@@ -15,8 +15,6 @@ export default function Login({ user }) {
 
 
 
-
-
     /************** CREATE ACCOUNT W/ EMAIL & PASSWORD SECTION **************/
     // Creates a new user account using auth, then takes the auth UID and creates a document inside the users collection. The new document ID is the same as
       // the auth UID. This document stores all the necessary fields for each user. Stores the UID in local storage to keep track of which user is signed in.
@@ -44,6 +42,7 @@ export default function Login({ user }) {
             await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "friends"), {});
             await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "recRequests"), {});
             await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "sentRequests"), {});
+            await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "songRecs"), {});
             
             localStorage.setItem("currUser", newUser.user.uid)
             navigate("/home");
