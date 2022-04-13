@@ -41,8 +41,8 @@ export default function Friends() {
                     const senderRef = doc(db, "users", localStorage.getItem("currUser"));
                     const senderData = await getDoc(senderRef);
                     const senderUsername = senderData.data().username;
+                    
                     const receiverReqRef = doc(db, "users", user.id, "friendsList", "recRequests");
-                    console.log(user.id + " & " + typeof user.id)
                     const userKey = user.id;
                     const newSentRequest = {[userKey] : user.username};
                     const newReceivedRequest = {[localStorage.getItem("currUser")] : senderUsername}

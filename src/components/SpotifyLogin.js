@@ -39,10 +39,9 @@ export default function SpotifyLogin() {
         })
 
         setSpotifyData(axiosInfo.data)
-
-        const docRef = doc(db, "users", axiosInfo.data.id)
-        const docSnap = await getDoc(docRef)
         const spotifyID = axiosInfo.data.id.replace('.', '%_%')
+        const docRef = doc(db, "users", spotifyID)
+        const docSnap = await getDoc(docRef)
         if(!docSnap.exists()) {
             await setDoc(doc(db, "users", spotifyID), {
                 adPerms: false,

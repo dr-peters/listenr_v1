@@ -12,7 +12,6 @@ export default function SendSongRec({ thisFriend }) {
     const sendSong = async() => {
         const newSongRec = {[thisFriend] : songRec}
         await updateDoc(friendRef, newSongRec)
-        console.log("Sent song")
     }
 
     const getRecs = async() => {
