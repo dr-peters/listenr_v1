@@ -47,7 +47,6 @@ export default function SpotifyLogin() {
                 adPerms: false,
                 bio: "",
                 currently: "",
-                picURL: "",
                 username: axiosInfo.data.display_name,
                 userType: "spotifyUser"
             });
@@ -88,8 +87,7 @@ export default function SpotifyLogin() {
 
     return (
         <div className='spotifyLogin'>
-            <button onClick={handleSpotifyLogin}>Login With Spotify</button>
-            <div>Spotify Data: {spotifyData.display_name}</div>
+            <button className='spotifyButton' onClick={handleSpotifyLogin}>Login With Spotify</button>
         </div>
     )
 }

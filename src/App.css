@@ -1,38 +1,99 @@
 .App {
   text-align: center;
+  height: 100%;
+  background-image: linear-gradient(to bottom right, #E8CBC0, #636FA4);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html, body {
+  height:100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.HomePage {
+  display: block;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.NavBar {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  justify-content: right;
+}
+
+.NavBar a{
+  padding: 10px 20px;
+  text-decoration: none;
+  text-decoration-color: #000000;
+}
+
+
+.NavBar button {
+  margin: 10px 20px;
+}
+
+.buttons {
+  margin-top: 5px;
+  background: #838aaa;
+  border: #a3a6b3 1px solid;
+  border-radius: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: 0.1s;
+  font-size: 16px;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-family: Verdana, Tahoma, sans-serif;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.buttons:hover {
+  transform: translateY(4px);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.login {
+  box-sizing: border-box;
+  display: block;
+  margin-bottom: 25px;
+}
+
+.input {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  width: 20%;
+  padding: 10px 10px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 14px;
+  background-color: rgba(255,255,255,0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;
+  transition: 0.1s;
+}
+
+.spotifyButton {
+  appearance: auto;
+  background-color: var(--background-base,#1ed760);
+  color: var(--text-base,#000000);
+  cursor: pointer;
+  border-radius: 500px;
+  font-size: inherit;
+  padding: 14px 32px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  box-sizing: border-box;
+  font-family: Helvetica, Arial, sans-serif;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+}
+
+.spotifyButton:hover {
+  transform: translateY(4px);
+}
+
+#root {
+  height:100%;
 }

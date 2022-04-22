@@ -87,52 +87,49 @@ export default function Login({ user }) {
 
 
     return(
-    <div className="login">
-        <div>
-            <h3>Register Account</h3>
-            <input 
+    <div>
+        <div className="login">
+            <h2>WELCOME TO LISTENR</h2>
+            <h3>Sign Up</h3>
+            <input className="input"
                 placeholder="Email..."
                 onChange={(event) => {
                     setRegisterEmail(event.target.value);
                 }}
             />
-            <input
+            <input className="input"
                 placeholder="Password..."
                 onChange={(event) => {
                     setRegisterPass(event.target.value);
                 }}
             />
-            <input
+            <input className="input"
                 placeholder="Username..."
                 onChange={(event) => {
                     setRegisterName(event.target.value);
                 }}
             />
 
-            <button onClick={register}>Register</button>
+            <button className="buttons" onClick={register}>Register</button>
         </div>
 
-        <div>
-            <h3>Login</h3>
-            <input
+        <div className="login">
+            <h3>Already have an account? Login!</h3>
+            <input className="input"
                 placeholder="Email..."
                 onChange={(event) => {
                     setLoginEmail(event.target.value);
                 }}
             />
-            <input
+            <input className="input"
                 placeholder="Password..."
                 onChange={(event) => {
                     setLoginPass(event.target.value);
                 }}
             />
 
-            <button onClick={login}>Login</button>
+            <button className="buttons" onClick={login}>Login</button>
         </div>
-
-        <h4>User Logged In: {user?.email}</h4>
-        <h4>Profile UID is: {user?.uid}</h4>
-        <h4>spotify token: </h4>
         
         <SpotifyLogin />
     </div>

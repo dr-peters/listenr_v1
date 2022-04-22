@@ -2,18 +2,22 @@ import React, { useEffect, useState } from 'react'
 import { db } from "../firebase.js"
 import { collection, deleteField, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import SendSongRec from '../components/SendSongRec.js';
+import Navbar from '../components/Navbar.js';
+import { Link } from 'react-router-dom';
 
-export default function Friends() {
+export default function Friends({ setViewFriend }) {
     const usersRef = collection(db, "users")
     const currFriendListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "friends");
-    const currRecListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "recRequests");
+    const currReqListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "recRequests");
     const currSentListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "sentRequests");
+    const currRecUserRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "songRecs")
 
     const [users, setUsers] = useState([]);
     const [friends, setFriends] = useState({});
     const [recRequests, setRecRequests] = useState({});
     const [sentRequests, setSentRequests] = useState({});
     const [desiredFriend, setDesiredFriend] = useState("");
+    const [myRecs, setMyRecs] = useState({});
     const [refresh, setRefresh] = useState("");
 
 
@@ -98,7 +102,7 @@ export default function Friends() {
 
     const ignore = async(requestedID) => {
         console.log("Triggering ignore function with id: " + requestedID)
-        await updateDoc(currRecListRef, {
+        await updateDoc(currReqListRef, {
             [requestedID] : deleteField()
         })
 
@@ -112,6 +116,11 @@ export default function Friends() {
 
 
 
+    const getRecs = async() => {
+        const data = await getDoc(currRecUserRef);
+        setMyRecs(data.data());
+    }
+
 
     useEffect(() => {
         console.log("Calling useEffect")
@@ -119,8 +128,8 @@ export default function Friends() {
             const data = await getDoc(currFriendListRef);
             setFriends(data.data());
         };
-        const getRecRequests = async() => {
-            const data = await getDoc(currRecListRef);
+        const getReqRequests = async() => {
+            const data = await getDoc(currReqListRef);
             setRecRequests(data.data());
         };
         const getSentRequests = async() => {
@@ -133,9 +142,10 @@ export default function Friends() {
         };
 
         getFriends();
-        getRecRequests();
+        getReqRequests();
         getSentRequests();
         getUsers();
+        getRecs();
     }, [refresh]);
 
 
@@ -144,20 +154,7 @@ export default function Friends() {
     
     return (
         <div className='friendsList'>
-            <h4>Friends</h4>
-            {Object.entries(friends).map((friend) => {
-                return (
-                    <div key={friend[1]}>
-                        <p>{friend[1]}</p>
-                        <button onClick={() => {
-                            removeFriend(friend[0])
-                        }}>Remove</button>
-                        <SendSongRec thisFriend={friend[0]} />
-                        
-                    </div>
-                    
-                )
-            })}
+            <Navbar />
             <input
                 placeholder="Enter friend's username..."
                 onChange={(event) => {
@@ -169,6 +166,22 @@ export default function Friends() {
                     findFriend(desiredFriend)
                 }}
             >Send Friend Request</button>
+            <h4>Friends</h4>
+            {Object.entries(friends).map((friend) => {
+                return (
+                    <div key={friend[1]}>
+                        <Link to="/friendProfile" onClick={setViewFriend(friend[0])}>{friend[1]}</Link>
+                        <button onClick={() => {
+                            removeFriend(friend[0])
+                        }}>Remove</button>
+                        
+                        
+                        <SendSongRec thisFriend={friend[0]} friendUsername={friend[1]}/>
+                        
+                    </div>
+                    
+                )
+            })}
 
             <h4>Friend Requests</h4>
             {Object.entries(recRequests).map((request) => {
@@ -182,8 +195,16 @@ export default function Friends() {
                             ignore(request[0])
                         }}>Ignore</button>
                     </div>
-                    
+                )
+            })}
 
+            <h4>Recommendations</h4>
+            {Object.entries(myRecs).map((rec) => {
+                return (
+                    <div key={rec[1]}>
+                        <p>{rec[1]}</p>
+                    </div>
+                    
                 )
             })}
         </div>
