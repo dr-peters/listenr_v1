@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { db } from "../firebase.js"
 import { doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
@@ -9,6 +9,7 @@ export default function Home({ user }) {
   const [allArtists, setAllArtists] = useState({});
   const [allGenres, setAllGenres] = useState({});
   const [allSongs, setAllSongs] = useState({});
+  const navigate = useNavigate();
 
   /************** EDIT PROFILE SECTION **************/
   // This section will contain multiple async functions to allow the user to edit any particular part of their public profile. 

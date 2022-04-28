@@ -1,9 +1,12 @@
 import { collection, deleteDoc, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { db } from '../firebase'
 
 export default function Admin() {
+    const thisUserRef = doc(db, "users", localStorage.getItem("currUser"));
+    const navigate = useNavigate();
     const usersCollectionRef = collection(db, "users");
     const [userDocs, setUserDocs] = useState([]);
     const [refresh, setRefresh] = useState("");
@@ -48,6 +51,14 @@ export default function Admin() {
     }
 
     useEffect(() => {
+        const checkPerms = async() => {
+            const userData = (await getDoc(thisUserRef)).data();
+            if(!userData.adPerms) {
+                window.alert("You don't have permission to do that");
+                navigate('/home');
+            } 
+        }
+
         console.log("calling useEffect");
         const getUsers = async() => {
             const users = await getDocs(usersCollectionRef);
@@ -55,12 +66,13 @@ export default function Admin() {
         }
 
         getUsers();
+        checkPerms();
     }, [refresh])
 
     return (
         <div>
             <Navbar />
-            Welcome to admin
+            <h2>Administrator Page</h2>
 
             <div>
                 <center>

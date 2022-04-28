@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { db } from "../firebase.js"
 import { collection, deleteField, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
-import SendSongRec from '../components/SendSongRec.js';
 import Navbar from '../components/Navbar.js';
 import { Link } from 'react-router-dom';
 
@@ -11,6 +10,7 @@ export default function Friends({ setViewFriend }) {
     const currReqListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "recRequests");
     const currSentListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "sentRequests");
     const currRecUserRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "songRecs")
+    
 
     const [users, setUsers] = useState([]);
     const [friends, setFriends] = useState({});
@@ -24,7 +24,11 @@ export default function Friends({ setViewFriend }) {
 
 
 
-
+    const sendSong = async(thisUser, thisFriend, thisSong) => {
+        const friendRef = doc(db, "users", thisFriend, "friendsList", "songRecs");
+        const newSongRec = {[thisUser] : thisSong}
+        await updateDoc(friendRef, newSongRec)
+    }
 
     const findFriend = async (friendUsername) => {
         let alreadyAdded = false;
@@ -123,11 +127,19 @@ export default function Friends({ setViewFriend }) {
     }
 
 
-
-
     const getRecs = async() => {
         const data = await getDoc(currRecUserRef);
         setMyRecs(data.data());
+    }
+
+    const removeRec = async(thisSender) => {
+        console.log(thisSender);
+        await updateDoc(currRecUserRef, {
+            [thisSender] : deleteField()
+        });
+        console.log("removed");
+
+        setRefresh(thisSender);
     }
 
 
@@ -164,19 +176,6 @@ export default function Friends({ setViewFriend }) {
     return (
         <div className='friendsList'>
             <Navbar />
-            <input
-                placeholder="Enter friend's username..."
-                onChange={(event) => {
-                    setDesiredFriend(event.target.value);
-                }}
-            />
-            <button
-                onClick={() => {
-                    findFriend(desiredFriend)
-                }}
-            >Send Friend Request</button>
-            <h4>Friends</h4>
-
 
             <div>
                 <center>
@@ -190,7 +189,7 @@ export default function Friends({ setViewFriend }) {
                                 return (
                                     <tr key={friend[0]}>
                                         <td><button onClick={() => {removeFriend(friend[0])}}>Remove</button></td>
-                                        <td>{friend[1]}</td>
+                                        <td><Link to="/friendProfile" onClick={() => {setViewFriend(friend[0])}}>{friend[1]}</Link></td>
                                         <td>
                                             <input placeholder='Enter song rec' 
                                                 onChange={(event) => {
@@ -198,7 +197,7 @@ export default function Friends({ setViewFriend }) {
                                                 }}
                                             />
                                         </td>
-                                        <td><SendSongRec thisFriend={friend[0]} friendUsername={friend[1]} song={song}/></td>
+                                        <td><button onClick={() => {sendSong(localStorage.getItem("currUser"), friend[0], song)}}>Send</button></td>
                                     </tr>
                                 )
                             })}
@@ -209,24 +208,6 @@ export default function Friends({ setViewFriend }) {
 
 
 
-
-
-
-            {Object.entries(friends).map((friend) => {
-                return (
-                    <div key={friend[1]}>
-                        <Link to="/friendProfile" onClick={setViewFriend(friend[0])}>{friend[1]}</Link>
-                        <button onClick={() => {
-                            removeFriend(friend[0])
-                        }}>Remove</button>
-                        
-                        
-                        <SendSongRec thisFriend={friend[0]} friendUsername={friend[1]}/>
-                        
-                    </div>
-                    
-                )
-            })}
 
             <div>
                 <center>
@@ -258,7 +239,7 @@ export default function Friends({ setViewFriend }) {
                 <h3>Recommendations</h3>
                     <table>
                         <thead>
-                        <tr><th>From</th><th>Song</th></tr>
+                        <tr><th></th><th>From</th><th>Song</th></tr>
                         </thead>
                         <tbody>
                             {Object.entries(myRecs).map((rec) => {
@@ -266,6 +247,7 @@ export default function Friends({ setViewFriend }) {
 
                                 return (
                                     <tr key={rec[1]}>
+                                        <td><button onClick={() => {removeRec(rec[0])}}>Remove</button></td>
                                         <td>{who}</td>
                                         <td>{rec[1]}</td>
                                     </tr>
@@ -274,17 +256,21 @@ export default function Friends({ setViewFriend }) {
                         </tbody>
                     </table>
                 </center>
-            </div>
+            </div><br /><br />
 
-            <h4>Recommendations</h4>
-            {Object.entries(myRecs).map((rec) => {
-                return (
-                    <div key={rec[1]}>
-                        <p>{rec[1]}</p>
-                    </div>
-                    
-                )
-            })}
+            <input
+                className='input'
+                placeholder="Enter a username..."
+                onChange={(event) => {
+                    setDesiredFriend(event.target.value);
+                }}
+            />
+            <button className='buttons'
+                onClick={() => {
+                    findFriend(desiredFriend)
+                }}
+            >Send Friend Request</button>
+
         </div>
     )
 }
