@@ -29,15 +29,13 @@ export default function Login({ user }) {
             await setDoc(doc(db, "users", newUser.user.uid), {
                 adPerms: false,
                 bio: "",
-                currently: "",
-                picURL: "",
                 username: registerName,
                 userType: "localUser"
             });
 
-            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "artists"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
-            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "genres"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
-            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "songs"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "artists"), {1: "", 2: "", 3: "", 4: "", 5: ""});
+            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "genres"), {1: "", 2: "", 3: "", 4: "", 5: ""});
+            await setDoc(doc(db, `users/${newUser.user.uid}/favorites`, "songs"), {1: "", 2: "", 3: "", 4: "", 5: ""});
 
             await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "friends"), {});
             await setDoc(doc(db, `users/${newUser.user.uid}/friendsList`, "recRequests"), {});
@@ -99,6 +97,7 @@ export default function Login({ user }) {
             />
             <input className="input"
                 placeholder="Password..."
+                type="password"
                 onChange={(event) => {
                     setRegisterPass(event.target.value);
                 }}
@@ -123,6 +122,7 @@ export default function Login({ user }) {
             />
             <input className="input"
                 placeholder="Password..."
+                type="password"
                 onChange={(event) => {
                     setLoginPass(event.target.value);
                 }}

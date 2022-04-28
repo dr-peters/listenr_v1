@@ -46,14 +46,13 @@ export default function SpotifyLogin() {
             await setDoc(doc(db, "users", spotifyID), {
                 adPerms: false,
                 bio: "",
-                currently: "",
                 username: axiosInfo.data.display_name,
                 userType: "spotifyUser"
             });
 
-            await setDoc(doc(db, `users/${spotifyID}/favorites`, "artists"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
-            await setDoc(doc(db, `users/${spotifyID}/favorites`, "genres"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
-            await setDoc(doc(db, `users/${spotifyID}/favorites`, "songs"), {fav1: "", fav2: "", fav3: "", fav4: "", fav5: ""});
+            await setDoc(doc(db, `users/${spotifyID}/favorites`, "artists"), {1: "", 2: "", 3: "", 4: "", 5: ""});
+            await setDoc(doc(db, `users/${spotifyID}/favorites`, "genres"), {1: "", 2: "", 3: "", 4: "", 5: ""});
+            await setDoc(doc(db, `users/${spotifyID}/favorites`, "songs"), {1: "", 2: "", 3: "", 4: "", 5: ""});
 
             await setDoc(doc(db, `users/${spotifyID}/friendsList`, "friends"), {});
             await setDoc(doc(db, `users/${spotifyID}/friendsList`, "recRequests"), {});

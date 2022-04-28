@@ -10,6 +10,8 @@ import { auth } from "./firebase.js";
 import {onAuthStateChanged} from "firebase/auth";
 import Friends from './pages/Friends';
 import FriendProfile from './pages/FriendProfile';
+import Edit from './pages/Edit';
+import Admin from './pages/Admin';
 
 function App() {
   const [user, setUser] = useState({});
@@ -26,7 +28,9 @@ function App() {
           <Route path="/" element={<Login user={user}/>} />
           <Route path="/home" element={<Home />} />
           <Route path="/friends" element={<Friends setViewFriend={setViewFriend}/>} />
-          <Route path="friendProfile" element={<FriendProfile friendID={viewFriend}/>} />
+          <Route path="/friendProfile" element={<FriendProfile friendID={viewFriend}/>} />
+          <Route path="/edit" element={<Edit />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </Router>
     </div>

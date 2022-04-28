@@ -9,6 +9,7 @@ export default function Navbar({ userName }) {
         <a>Logged-in: {userName}</a>
         <Link to="/home">Go Home</Link>
         <Link to="/friends">Friends</Link>
+        <Link to="/admin">Admin</Link>
         <Logout />
       </nav>
     </div>
