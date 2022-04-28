@@ -18,6 +18,8 @@ export default function Friends({ setViewFriend }) {
     const [sentRequests, setSentRequests] = useState({});
     const [desiredFriend, setDesiredFriend] = useState("");
     const [myRecs, setMyRecs] = useState({});
+    const [song, setSong] = useState("");
+    const [who, setWho] = useState("");
     const [refresh, setRefresh] = useState("");
 
 
@@ -57,6 +59,13 @@ export default function Friends({ setViewFriend }) {
                 }
             });
         }
+    }
+
+    const fromWho = async(user) => {
+        const fromRef = doc(db, "users", user);
+        const fromRefData = (await getDoc(fromRef)).data();
+        console.log(fromRefData.username);
+        setWho(fromRefData.username);
     }
 
 
@@ -167,6 +176,42 @@ export default function Friends({ setViewFriend }) {
                 }}
             >Send Friend Request</button>
             <h4>Friends</h4>
+
+
+            <div>
+                <center>
+                <h3>Friends</h3>
+                    <table>
+                        <thead>
+                        <tr><th></th><th>Username</th><th></th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            {Object.entries(friends).map((friend) => {
+                                return (
+                                    <tr key={friend[0]}>
+                                        <td><button onClick={() => {removeFriend(friend[0])}}>Remove</button></td>
+                                        <td>{friend[1]}</td>
+                                        <td>
+                                            <input placeholder='Enter song rec' 
+                                                onChange={(event) => {
+                                                    setSong(event.target.value);
+                                                }}
+                                            />
+                                        </td>
+                                        <td><SendSongRec thisFriend={friend[0]} friendUsername={friend[1]} song={song}/></td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </center>
+            </div>
+
+
+
+
+
+
             {Object.entries(friends).map((friend) => {
                 return (
                     <div key={friend[1]}>
@@ -183,20 +228,53 @@ export default function Friends({ setViewFriend }) {
                 )
             })}
 
-            <h4>Friend Requests</h4>
-            {Object.entries(recRequests).map((request) => {
-                return (
-                    <div key={request[0]}>
-                        <p>{request[1]}</p>
-                        <button onClick={() => {
-                            addFriend(request[0], request[1])
-                        }}>Accept</button>
-                        <button onClick={() => {
-                            ignore(request[0])
-                        }}>Ignore</button>
-                    </div>
-                )
-            })}
+            <div>
+                <center>
+                <h3>Friend Requests</h3>
+                    <table>
+                        <thead>
+                        <tr><th></th><th>Username</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            {Object.entries(recRequests).map((request) => {
+                                return (
+                                    <tr key={request[0]}>
+                                        <td><button onClick={() => {addFriend(request[0], request[1])}}>Accept</button></td>
+                                        <td>{request[1]}</td>
+                                        <td><button onClick={() => {ignore(request[0])}}>Decline</button></td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </center>
+            </div>
+
+
+
+
+            <div>
+                <center>
+                <h3>Recommendations</h3>
+                    <table>
+                        <thead>
+                        <tr><th>From</th><th>Song</th></tr>
+                        </thead>
+                        <tbody>
+                            {Object.entries(myRecs).map((rec) => {
+                                fromWho(rec[0]);
+
+                                return (
+                                    <tr key={rec[1]}>
+                                        <td>{who}</td>
+                                        <td>{rec[1]}</td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </center>
+            </div>
 
             <h4>Recommendations</h4>
             {Object.entries(myRecs).map((rec) => {
