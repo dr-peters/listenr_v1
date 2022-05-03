@@ -5,6 +5,8 @@ import Navbar from '../components/Navbar.js';
 import { Link } from 'react-router-dom';
 
 export default function Friends({ setViewFriend }) {
+
+    // One of the more extensive files within this project. Makes references to the subcollections for the current logged-in user, as well as the current user's document. 
     const usersRef = collection(db, "users")
     const currFriendListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "friends");
     const currReqListRef = doc(db, "users", localStorage.getItem("currUser"), "friendsList", "recRequests");
@@ -24,12 +26,14 @@ export default function Friends({ setViewFriend }) {
 
 
 
+    // Takes a friend's UID and a song and updates their song recommendations document within their friendsList subcollection.
     const sendSong = async(thisUser, thisFriend, thisSong) => {
         const friendRef = doc(db, "users", thisFriend, "friendsList", "songRecs");
         const newSongRec = {[thisUser] : thisSong}
         await updateDoc(friendRef, newSongRec)
     }
 
+    // Searches all user documents fora specific username.
     const findFriend = async (friendUsername) => {
         let alreadyAdded = false;
         let alreadySent = false;
@@ -45,6 +49,11 @@ export default function Friends({ setViewFriend }) {
             }
         })
 
+
+        // If the person has not already been added and they do not already have a friend request pending, 
+            // both users will have their documents in the database updated. The sender will have their sentRequests document
+            // in the friendsList subcollection updated, while the receiver will have their receivedRequests document 
+            // in the friendsList subcollection updated.
         if(alreadyAdded === false && alreadySent === false) {
             users.map(async(user) => {
                 if(user.username === friendUsername) {
@@ -97,6 +106,7 @@ export default function Friends({ setViewFriend }) {
 
 
 
+    // Removes a friend by removing both people from the other's respective friends document.
     const removeFriend = async(removeID) => {
         await updateDoc(currFriendListRef, {
             [removeID] : deleteField()
@@ -113,6 +123,7 @@ export default function Friends({ setViewFriend }) {
 
 
 
+    // Removes a request from the incoming request document for the current user.
     const ignore = async(requestedID) => {
         console.log("Triggering ignore function with id: " + requestedID)
         await updateDoc(currReqListRef, {
@@ -143,6 +154,8 @@ export default function Friends({ setViewFriend }) {
     }
 
 
+
+    // Gets all friend and recommendation data for the current user logged in.
     useEffect(() => {
         console.log("Calling useEffect")
         const getFriends = async() => {
@@ -177,6 +190,8 @@ export default function Friends({ setViewFriend }) {
         <div className='friendsList'>
             <Navbar />
 
+
+            {/* Similar to the Home Page, maps through all information (accessed by state variables) and displays info into tables. */}
             <div>
                 <center>
                 <h3>Friends</h3>

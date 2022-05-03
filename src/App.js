@@ -17,10 +17,13 @@ function App() {
   const [user, setUser] = useState({});
   const [viewFriend, setViewFriend] = useState("");
 
+  // Updates Firebase auth variable with the current user that is logged in.
   onAuthStateChanged(auth, (currentUser) => {
     setUser(currentUser);
   });
 
+
+  // Routes to each page using the React Router Dom package.
   return (
     <div className='App'>
       <Router>

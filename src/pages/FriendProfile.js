@@ -9,6 +9,9 @@ export default function FriendProfile({ friendID }) {
   const [allGenres, setAllGenres] = useState({});
   const [allSongs, setAllSongs] = useState({});
 
+  // Nearly identical to Home Page, but without the capability of editing. 
+  // Simply displays a friend's profile information based off of their userID.
+
   useEffect(() => {
     const updateProfile = async() => {
       try {
@@ -38,7 +41,7 @@ export default function FriendProfile({ friendID }) {
     }
 
     updateProfile();
-  }, []);
+  });
 
 
   return (

@@ -14,7 +14,6 @@ export default function Login({ user }) {
     const [loginPass, setLoginPass] = useState("");
 
 
-
     /************** CREATE ACCOUNT W/ EMAIL & PASSWORD SECTION **************/
     // Creates a new user account using auth, then takes the auth UID and creates a document inside the users collection. The new document ID is the same as
       // the auth UID. This document stores all the necessary fields for each user. Stores the UID in local storage to keep track of which user is signed in.
@@ -84,6 +83,7 @@ export default function Login({ user }) {
 
 
 
+    // Displays text input fields to the DOM, allowing users to enter their information and use that information upon clicking a button.
     return(
     <div>
         <div className="login">

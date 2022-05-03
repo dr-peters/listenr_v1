@@ -4,6 +4,9 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 export default function Edit() {
+
+    // Allows user to update their profile. Turns the table rows into text fields that accept input.
+
     const userDocRef = doc(db, "users", localStorage.getItem("currUser"));
     const favArtistRef = doc(db, "users", localStorage.getItem("currUser"), "favorites", "artists");
     const favGenreRef = doc(db, "users", localStorage.getItem("currUser"), "favorites", "genres");
@@ -15,6 +18,8 @@ export default function Edit() {
     const [bio, setBio] = useState("");
     const navigate = useNavigate();
 
+
+    // Functions that update each respective table / section of the user's profile.
     const updateArtistState = async(thisKey, currEvent) => {
         let prevArtist = allArtists;
         prevArtist[thisKey] = currEvent;
@@ -33,6 +38,8 @@ export default function Edit() {
         setAllSongs(prevSong);
     }
 
+
+    // Function called when user clicks the "Save" button.
     const updateProfile = async() => {
 
         await updateDoc(favArtistRef, allArtists);
@@ -44,6 +51,8 @@ export default function Edit() {
         navigate('/home');
     }
 
+
+    // Gets current information from user's profile to pre-fill text fields.
     useEffect(() => {
         const getProfile = async() => {
             try {
@@ -66,11 +75,14 @@ export default function Edit() {
             }
         }
         getProfile();
-    }, []);
+    });
 
 
 
     return (
+
+        // Once again, same format as other pages. State variable is mapped through to display information in a table.
+        // This time, the information is displayed in text fields that can be edited.
         <div>
             <div>
                 <center>

@@ -5,12 +5,20 @@ import Navbar from '../components/Navbar';
 import { db } from '../firebase'
 
 export default function Admin() {
+
+    // Admin page that allows admins to change permissions of other users and also delete other users.
+    // Displays information to the DOM in tables like all other pages.
+
     const thisUserRef = doc(db, "users", localStorage.getItem("currUser"));
     const navigate = useNavigate();
     const usersCollectionRef = collection(db, "users");
     const [userDocs, setUserDocs] = useState([]);
     const [refresh, setRefresh] = useState("");
 
+    // Function called when user clicks "Delete" button.
+        // Makes user confirm before actual deletion.
+        // Then makes a reference to every document and subcollection in the user's
+        // root document, and deletes them in order.
     const deleting = async(user) => {
         if(window.confirm("Are you sure you want to delete this user?")) {
             try {
@@ -40,6 +48,11 @@ export default function Admin() {
 
     }
 
+
+    // Function called when an admin changes the permissions of a user by clicking the "Change" button.
+    // Reference is made to that user's document.
+        // If the permissions are currently set to true, then they become false if clicked.
+        // Otherwise, the permissions become true. 
     const changePerms = async(user) => {
         const userDocRef = doc(db, "users", user);
         const userData = (await getDoc(userDocRef)).data();
@@ -50,6 +63,9 @@ export default function Admin() {
         setRefresh("Changed perms of " + userData.username + " to " + perms.toString());
     }
 
+
+    // Makes sure that users have access to the admin page before being able to access it.
+    // Once user is confirmed to be an admin, useEffect queries the database for every user document and stores it in a state variable.
     useEffect(() => {
         const checkPerms = async() => {
             const userData = (await getDoc(thisUserRef)).data();
@@ -69,6 +85,9 @@ export default function Admin() {
         checkPerms();
     }, [refresh])
 
+
+    // Displays all users and the necessary information to the DOM in a table like all other pages.
+    // Includes the Delete and Change buttons
     return (
         <div>
             <Navbar />
